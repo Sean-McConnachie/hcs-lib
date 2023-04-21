@@ -47,6 +47,8 @@ impl FilePaths {
                 current_type: FileType::Symlink,
             }
         } else if FileType::is_in_symlink_directory(&fp, config) {
+            // TODO: Possibly move above is_real?
+            // TODO: Add directory filetype.
             FilePaths {
                 real_path: FileType::symlink_to_real(&fp, config),
                 custom_metadata_path: FileType::symlink_to_custom_metadata(&fp, config),
