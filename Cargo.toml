@@ -82,3 +82,6 @@ sqlx = { version = "0.6.3", features = [
     "runtime-tokio-native-tls",
 ] }
 symlink = "0.1.0"
+
+notify = "5.1.0"
+anyhow = "1.0.71"
