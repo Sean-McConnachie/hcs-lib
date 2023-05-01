@@ -1,5 +1,7 @@
 use std::{fs, path};
 
+use log::info;
+
 /// Local server version
 pub struct ServerVersion {
     server_version_path: path::PathBuf,
@@ -8,6 +10,7 @@ pub struct ServerVersion {
 
 impl ServerVersion {
     pub fn init(program_data_directory: &path::PathBuf) -> Self {
+        info!("Initializing server version");
         let server_version_path = program_data_directory.join("server_version");
         let server_version = if !server_version_path.exists() {
             fs::write(&server_version_path, "0").unwrap();

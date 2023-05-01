@@ -1,11 +1,14 @@
 use std::fs;
 
+use log::debug;
+
 use crate::client_database;
 
 pub fn delete_file(
     file: &client_database::FilePaths,
     change_counter: &mut client_database::ChangeCounter,
 ) {
+    debug!("`delete_file`: `{}`", file.relative_path().display());
     // Delete symlink
     {
         let symlink_path = file.symlink_dir_path();

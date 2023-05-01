@@ -1,11 +1,14 @@
 use std::fs;
 
+use log::debug;
+
 use crate::client_database::{self, custom_metadata};
 
 pub fn create_dir(
     file: &client_database::FilePaths,
     change_counter: &mut client_database::ChangeCounter,
 ) {
+    debug!("`create_dir`: `{}`", file.relative_path().display());
     {
         // Create directory in storage directory
         fs::create_dir(file.storage_dir_path()).unwrap();

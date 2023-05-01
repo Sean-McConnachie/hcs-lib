@@ -1,9 +1,9 @@
+use log::debug;
+
 use crate::client_database;
 
-pub fn modify_dir(
-    file: &client_database::FilePaths,
-    change_counter: &client_database::ChangeCounter,
-) {
+pub fn modify_dir(file: &client_database::FilePaths) {
+    debug!("`modify_dir`: `{}`", file.relative_path().display());
     {
         // Update custom metadata
         let directory_last_modified =

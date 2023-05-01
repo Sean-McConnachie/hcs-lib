@@ -88,7 +88,7 @@ pub fn directory_exists(
         let custom_metadata = client_database::CustomMetadata::read_from_file(&file).unwrap();
 
         if directory_last_modified != custom_metadata.last_modified() {
-            client_database::change_events::modify_dir(file, change_counter);
+            client_database::change_events::modify_dir(file);
         }
     }
 }

@@ -1,5 +1,7 @@
 use std::fs;
 
+use log::debug;
+
 use crate::client_database;
 
 /// This function assumes that the real file is currently located in the storage directory.
@@ -7,6 +9,7 @@ pub fn create_file(
     file: &client_database::FilePaths,
     change_counter: &mut client_database::ChangeCounter,
 ) {
+    debug!("`create_file`: `{}`", file.relative_path().display());
     {
         // Create a custom metadata file
         let last_modified =

@@ -1,5 +1,7 @@
 use std::{fs, path};
 
+use log::debug;
+
 use crate::client_database;
 
 pub fn move_file(
@@ -9,6 +11,11 @@ pub fn move_file(
     change_counter: &mut client_database::ChangeCounter,
     skip_move: client_database::Type,
 ) {
+    debug!(
+        "`move_file` - from: `{}` to: `{}`",
+        rel_from_path.display(),
+        rel_to_path.display()
+    );
     if skip_move != client_database::Type::Symlink {
         // Move symlink (delete, then create)
         let symlink_from_path = file_handler_config.symlink_directory.join(rel_from_path);

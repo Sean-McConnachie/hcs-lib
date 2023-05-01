@@ -1,5 +1,7 @@
 use std::{fs, path};
 
+use log::info;
+
 /// Local change counter
 /// Stores how many changes have been made to the local files.
 /// Used primarily for creating unique file names.
@@ -12,6 +14,7 @@ pub struct ChangeCounter {
 
 impl ChangeCounter {
     pub fn init(program_data_directory: &path::PathBuf) -> Self {
+        info!("Initializing change counter");
         let counter_path = program_data_directory.join("change_count");
         let change_count = if !counter_path.exists() {
             fs::write(&counter_path, "0").unwrap();
