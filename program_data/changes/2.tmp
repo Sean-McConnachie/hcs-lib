@@ -1,2 +1,2 @@
-delete_dir
-dir
+file_delete
+file1.txt

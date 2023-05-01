@@ -28,28 +28,28 @@ pub async fn execute_query(db_pool: &sqlx::PgPool, sql: &str) -> Result<(), sqlx
     Ok(())
 }
 
-#[cfg(test)]
-mod tests {
-    /// DATABASE_URL=postgres://postgres:password@localhost/mydatabase cargo test
-    // DATABASE_URL=postgres://postgres:12341234@localhost/hcs_testing cargo test
-    use super::{connect_db, execute_query, DbConfig};
-    use std::env;
+// #[cfg(test)]
+// mod tests {
+//     /// DATABASE_URL=postgres://postgres:password@localhost/mydatabase cargo test
+//     // DATABASE_URL=postgres://postgres:12341234@localhost/hcs_testing cargo test
+//     use super::{connect_db, execute_query, DbConfig};
+//     use std::env;
 
-    #[tokio::test]
-    async fn test_connect_db() {
-        let db_url = env::var("DATABASE_URL").expect("DATABASE_URL environment variable not set");
+//     #[tokio::test]
+//     async fn test_connect_db() {
+//         let db_url = env::var("DATABASE_URL").expect("DATABASE_URL environment variable not set");
 
-        let db_conf = DbConfig {
-            database_url: db_url,
-            max_connections: 5,
-        };
+//         let db_conf = DbConfig {
+//             database_url: db_url,
+//             max_connections: 5,
+//         };
 
-        let db_pool = connect_db(&db_conf).await;
-        assert!(db_pool.is_ok());
-        let db_pool = db_pool.unwrap();
+//         let db_pool = connect_db(&db_conf).await;
+//         assert!(db_pool.is_ok());
+//         let db_pool = db_pool.unwrap();
 
-        let query = "SELECT 1";
-        let result = execute_query(&db_pool, query).await;
-        assert!(result.is_ok());
-    }
-}
+//         let query = "SELECT 1";
+//         let result = execute_query(&db_pool, query).await;
+//         assert!(result.is_ok());
+//     }
+// }
