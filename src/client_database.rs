@@ -1,5 +1,6 @@
 mod blank_file;
 mod change_counter;
+pub mod change_events;
 mod custom_metadata;
 mod file_types;
 mod server_version;
@@ -7,7 +8,7 @@ mod server_version;
 pub use blank_file::make_blank_file;
 pub use change_counter::ChangeCounter;
 pub use custom_metadata::CustomMetadata;
-pub use file_types::{FilePaths, FileType};
+pub use file_types::*;
 pub use server_version::ServerVersion;
 
 use crate::config::parse_path_buf;
@@ -38,4 +39,21 @@ pub struct FileHandlerConfig {
     /// - `un-synced changes`
     #[serde(deserialize_with = "parse_path_buf")]
     pub program_data_directory: path::PathBuf,
+}
+
+impl FileHandlerConfig {
+    pub fn new(
+        storage_directory: String,
+        symlink_directory: String,
+        temporary_directory: String,
+    ) -> Self {
+        let program_data_directory = path::PathBuf::from("./program_data");
+
+        Self {
+            storage_directory: path::PathBuf::from(storage_directory),
+            symlink_directory: path::PathBuf::from(symlink_directory),
+            temporary_directory: path::PathBuf::from(temporary_directory),
+            program_data_directory,
+        }
+    }
 }

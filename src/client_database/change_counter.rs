@@ -7,6 +7,7 @@ use std::{fs, path};
 pub struct ChangeCounter {
     counter_path: path::PathBuf,
     change_count: i64,
+    change_directory: path::PathBuf,
 }
 
 impl ChangeCounter {
@@ -21,9 +22,16 @@ impl ChangeCounter {
                 .parse::<i64>()
                 .unwrap()
         };
+
+        let change_dir = program_data_directory.join("changes");
+        if !change_dir.exists() {
+            fs::create_dir(&change_dir).unwrap();
+        }
+
         Self {
             counter_path,
             change_count,
+            change_directory: program_data_directory.join("changes"),
         }
     }
 
@@ -31,6 +39,11 @@ impl ChangeCounter {
         self.change_count += 1;
         fs::write(&self.counter_path, self.change_count.to_string()).unwrap();
         self.change_count
+    }
+
+    pub fn next_path(&mut self) -> path::PathBuf {
+        let change_count = self.increment();
+        self.change_directory.join(format!("{}.tmp", change_count))
     }
 
     pub fn set_count(&mut self, count: i64) -> i64 {

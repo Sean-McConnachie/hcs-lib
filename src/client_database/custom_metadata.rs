@@ -4,16 +4,12 @@ use std::{fs, path, time};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct CustomMetadata {
-    file_type: FileType,
     last_modified: u64,
 }
 
 impl CustomMetadata {
-    pub fn new(file_type: FileType, last_modified: u64) -> Self {
-        Self {
-            file_type,
-            last_modified,
-        }
+    pub fn new(last_modified: u64) -> Self {
+        Self { last_modified }
     }
 
     pub fn set_last_modified(&mut self, new_last_modified: u64) {
@@ -25,13 +21,13 @@ impl CustomMetadata {
     }
 }
 
-impl TryFrom<FilePaths> for CustomMetadata {
-    type Error = std::io::Error;
+// impl TryFrom<FilePaths<T>> for CustomMetadata {
+//     type Error = std::io::Error;
 
-    fn try_from(file_paths: FilePaths) -> Result<Self, Self::Error> {
-        Self::read_from_file(&file_paths)
-    }
-}
+//     fn try_from(file_paths: FilePaths) -> Result<Self, Self::Error> {
+//         Self::read_from_file(&file_paths)
+//     }
+// }
 
 impl CustomMetadata {
     pub fn write_to_file(&self, file_paths: &FilePaths) -> Result<(), std::io::Error> {

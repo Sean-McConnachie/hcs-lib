@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 //! This module detects file changes (i.e. Create, Move, Modify, Delete etc...).
 //!
 //! There are two directories:
@@ -141,13 +143,20 @@
 //! ### Case **`10`**
 //! Ignore the file. Continue.
 //!
-
 use crate::client_database;
 
+mod symlink_cases;
 mod walk_storage_dir;
 mod walk_symlink_dir;
 
 fn detect_offline_changes(file_handler_config: &client_database::FileHandlerConfig) {
-    walk_symlink_dir::walk_symlink(&file_handler_config);
+    let mut change_counter =
+        client_database::ChangeCounter::init(&file_handler_config.program_data_directory);
+
+    walk_symlink_dir::walk_symlink(
+        &file_handler_config.symlink_directory,
+        &file_handler_config,
+        &mut change_counter,
+    );
     walk_storage_dir::walk_storage(&file_handler_config);
 }
