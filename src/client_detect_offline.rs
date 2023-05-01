@@ -145,6 +145,7 @@
 //!
 use crate::client_database;
 
+mod storage_cases;
 mod symlink_cases;
 mod walk_storage_dir;
 mod walk_symlink_dir;
@@ -158,5 +159,9 @@ fn detect_offline_changes(file_handler_config: &client_database::FileHandlerConf
         &file_handler_config,
         &mut change_counter,
     );
-    walk_storage_dir::walk_storage(&file_handler_config);
+    walk_storage_dir::walk_storage(
+        &file_handler_config.storage_directory,
+        &file_handler_config,
+        &mut change_counter,
+    );
 }
