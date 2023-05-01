@@ -1,12 +1,18 @@
 use std::{fs, path};
 
+use log::trace;
+
 use crate::client_database;
 
 /// Case 1
 pub fn symlink_points_to_symlink_dir(
-    _file: &client_database::FilePaths,
+    file: &client_database::FilePaths,
     _file_handler_config: &client_database::FileHandlerConfig,
 ) -> () {
+    trace!(
+        "Symlink points to symlink dir: {}",
+        file.relative_path().display()
+    );
     // TODO: Ignore for now In the future, keep a record of currently active symlinks. Send relevant symlinks to the server.
     return;
 }
@@ -17,6 +23,10 @@ pub fn symlink_points_to_storage_dir(
     file_handler_config: &client_database::FileHandlerConfig,
     change_counter: &mut client_database::ChangeCounter,
 ) {
+    trace!(
+        "Symlink points to storage dir: {}",
+        file.relative_path().display()
+    );
     let points_to = file.points_to().unwrap();
     if points_to.exists() {
         // Check if relative path of point_to and actual relative path of the symlink are the same
@@ -41,6 +51,7 @@ pub fn symlink_points_to_storage_dir(
 
 /// Case 3
 pub fn symlink_points_to_other_dir() -> () {
+    trace!("Symlink points to other dir");
     return;
 }
 
@@ -50,6 +61,10 @@ pub fn real_file_exists(
     file_handler_config: &client_database::FileHandlerConfig,
     change_counter: &mut client_database::ChangeCounter,
 ) {
+    trace!(
+        "Real file exists (symlink): {}",
+        file.relative_path().display()
+    );
     // First we need to move the file to the storage directory and rename to a unique
     // name if a file with the same name already exists there.
     // This should result in <file_name> (k) where k is the smallest
@@ -91,6 +106,10 @@ pub fn directory_exists(
     file: &client_database::FilePaths,
     change_counter: &mut client_database::ChangeCounter,
 ) {
+    trace!(
+        "Directory exists (symlink): {}",
+        file.relative_path().display()
+    );
     // Check if directory and custom metadata exists in the storage directory
     if !(file.storage_dir_path().exists() && file.custom_metadata_path().exists()) {
         client_database::change_events::create_dir(file, change_counter);
@@ -99,6 +118,10 @@ pub fn directory_exists(
 
 /// Case 6
 pub fn custom_metadata_exists(custom_metadata_in_symlink_path: &path::PathBuf) {
+    trace!(
+        "Custom metadata exists (symlink): {}",
+        custom_metadata_in_symlink_path.display()
+    );
     if custom_metadata_in_symlink_path.exists() {
         fs::remove_file(custom_metadata_in_symlink_path).unwrap();
     }

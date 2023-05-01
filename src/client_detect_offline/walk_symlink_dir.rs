@@ -1,5 +1,7 @@
 use std::{fs, path};
 
+use log::debug;
+
 use super::symlink_cases;
 use crate::client_database;
 
@@ -9,6 +11,8 @@ pub fn walk_symlink(
     file_handler_config: &client_database::FileHandlerConfig,
     change_counter: &mut client_database::ChangeCounter,
 ) {
+    debug!("Walking symlink directory: {:?}", dir);
+
     let paths = fs::read_dir(dir).unwrap();
 
     for path in paths {

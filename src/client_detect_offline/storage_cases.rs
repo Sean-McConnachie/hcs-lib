@@ -1,5 +1,7 @@
 use std::fs;
 
+use log::trace;
+
 use crate::client_database;
 
 /// Case 7
@@ -7,6 +9,10 @@ pub fn real_file_exists(
     file: &client_database::FilePaths,
     change_counter: &mut client_database::ChangeCounter,
 ) {
+    trace!(
+        "Real file exists (storage): {}",
+        file.relative_path().display()
+    );
     {
         if !(file.custom_metadata_path().exists() && fs::read_link(file.symlink_dir_path()).is_ok())
         {
@@ -33,6 +39,10 @@ pub fn custom_metadata_exists(
     file: &client_database::FilePaths,
     change_counter: &mut client_database::ChangeCounter,
 ) {
+    trace!(
+        "Custom metadata exists (storage): {}",
+        file.relative_path().display()
+    );
     let is_dir = if file.storage_dir_path().exists() {
         if file.storage_dir_path().is_dir() {
             true
@@ -62,6 +72,10 @@ pub fn directory_exists(
     file: &client_database::FilePaths,
     change_counter: &mut client_database::ChangeCounter,
 ) {
+    trace!(
+        "Directory exists (storage): {}",
+        file.relative_path().display()
+    );
     if !(file.custom_metadata_path().exists() && file.symlink_dir_path().exists()) {
         client_database::change_events::delete_dir(file, change_counter);
         return;
@@ -81,6 +95,7 @@ pub fn directory_exists(
 
 /// Case 10
 pub fn symlink_exists() {
+    trace!("Symlink exists (storage)");
     // Ignore the file
     return;
 }
