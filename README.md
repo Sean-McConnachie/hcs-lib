@@ -4,7 +4,7 @@
 - [ ] `client_database`
 - [x] `client_detect_offline`
 - [x] `data`
-- [ ] `server_database`
+- [x] `server_database`
 - [ ] `client_detect_live`
 - [x] `config`
 - [ ] `errors`
@@ -18,12 +18,12 @@
 - [ ] Add functionality for file writes and creates when receiving from the server
 
 ### `server_database`
-- [ ] Create tables
-- [ ] Create enums
-- [ ] Create rust objects
-- [ ] Add `sqlx` row `.into()` rust object traits
-- [ ] Create insert queries
-- [ ] Create read queries 
+- [x] Create tables
+- [ ] ~~Create enums~~
+- [x] Create rust objects
+- [x] Add `sqlx` row `.into()` rust object traits
+- [x] Create insert queries
+- [x] Create read queries 
 
 ### `client_detect_live` (later)
 - [ ] Detect live changes
