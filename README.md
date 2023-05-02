@@ -13,8 +13,8 @@
 - [x] `testing_utils`
 
 ### `client_database`
-- [ ] Optimize change events
-- [ ] Add blank files after each program run
+- [x] Optimize change events
+- [x] Add blank files after each program run
 - [ ] Add functionality for file writes and creates when receiving from the server
 
 ### `server_database`
