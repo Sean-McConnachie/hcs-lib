@@ -1,12 +1,6 @@
-use std::{
-    collections::{HashMap, LinkedList},
-    path,
-};
+use std::collections::{HashMap, LinkedList};
 
-use crate::{
-    client_database,
-    data::{self, InnerEventTrait},
-};
+use crate::data::{self, InnerEventTrait};
 
 use super::ChangeEvent;
 

@@ -1,4 +1,4 @@
-use super::{FilePaths, FileType};
+use super::FilePaths;
 
 use std::{fs, path, time};
 

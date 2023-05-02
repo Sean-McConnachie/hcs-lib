@@ -5,7 +5,7 @@
 - [x] `client_detect_offline`
 - [x] `data`
 - [x] `server_database`
-- [ ] `client_detect_live`
+- [ ] ~~`client_detect_live`~~
 - [x] `config`
 - [ ] `errors`
 - [x] `logger`
@@ -25,7 +25,7 @@
 - [x] Create insert queries
 - [x] Create read queries 
 
-### `client_detect_live` (later)
+### `client_detect_live` (to be implemented later)
 - [ ] Detect live changes
 - [ ] Use `client_database` to save those changes
 

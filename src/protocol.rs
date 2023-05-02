@@ -18,7 +18,7 @@ pub mod client {
         /// The runtime that implements the HCSProtocol must be able to distinguish what the data_uid
         /// is. For the TCP runtime, this is done by reading the first 16 bytes of a payload.
         /// `receive_payload` is where the client receives the data sent by the server in `send_payload`.
-        async fn receive_payload(&self, data_uid: u16, payload: T);
+        async fn receive_payload(&self, payload: T);
 
         /// Here, the payload (i.e. serialize `T`) is sent with the data_uid. This would then be received
         /// by the server in `receive_payload`.
@@ -45,7 +45,7 @@ pub mod server {
         /// The runtime that implements the HCSProtocol must be able to distinguish what the data_uid
         /// is. For the TCP runtime, this is done by reading the first 16 bytes of a payload.
         /// `receive_payload` is where the server receives the data sent by the client in `send_payload`.
-        async fn receive_payload(&self, data_uid: u16, payload: T);
+        async fn receive_payload(&self, payload: T);
 
         /// Here, the payload (i.e. serialize `T`) is sent with the data_uid. This would then be received
         /// by the client in `receive_payload`.

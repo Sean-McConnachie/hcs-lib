@@ -73,7 +73,6 @@ pub fn walk_symlink(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     #[test]
     fn test_walk_symlink() {

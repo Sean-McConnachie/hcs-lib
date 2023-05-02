@@ -39,7 +39,7 @@ impl SymlinkType {
         config: &super::FileHandlerConfig,
     ) -> path::PathBuf {
         let real_path = SymlinkType::to_real(fp, config);
-        let custom_metadata_path = SymlinkType::to_custom_metadata(&real_path, config);
+        let custom_metadata_path = FileType::to_custom_metadata(&real_path);
         custom_metadata_path
     }
 
