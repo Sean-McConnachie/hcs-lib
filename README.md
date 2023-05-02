@@ -25,7 +25,7 @@
 - [ ] Create insert queries
 - [ ] Create read queries 
 
-### `client_detect_live`
+### `client_detect_live` (later)
 - [ ] Detect live changes
 - [ ] Use `client_database` to save those changes
 

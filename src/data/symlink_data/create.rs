@@ -1,4 +1,6 @@
-use super::super::Data;
+use sqlx::Row;
+
+use crate::data::{ChangeEvent, Data, SymlinkEvent};
 
 /// Entry point for both the client and server. Used to determine whether the client and server are out of sync.
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
@@ -22,3 +24,19 @@ impl SymlinkCreate {
 }
 
 impl Data for SymlinkCreate {}
+
+#[cfg(feature = "server")]
+impl From<sqlx::postgres::PgRow> for SymlinkCreate {
+    fn from(row: sqlx::postgres::PgRow) -> Self {
+        Self {
+            path: row.get("path"),
+            links_to: row.get("links_to"),
+        }
+    }
+}
+
+impl Into<ChangeEvent> for SymlinkCreate {
+    fn into(self) -> ChangeEvent {
+        ChangeEvent::Symlink(SymlinkEvent::Create(self))
+    }
+}

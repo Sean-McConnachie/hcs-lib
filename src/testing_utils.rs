@@ -1,6 +1,9 @@
 use std::{env, fs};
 
-use crate::client_database;
+use crate::{
+    client_database,
+    server_database::{connect_db, DbConfig},
+};
 
 pub fn rm_dirs_ce_dirs_get_default_helpers() -> (
     client_database::FileHandlerConfig,
@@ -39,4 +42,23 @@ pub fn rm_dirs_ce_dirs_get_default_helpers() -> (
     let mut change_counter =
         client_database::ChangeCounter::init(&file_handler_config.program_data_directory);
     (file_handler_config, change_counter)
+}
+pub async fn clear_tables_and_get_pool() -> Result<sqlx::postgres::PgPool, sqlx::Error> {
+    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL environment variable not set");
+
+    let db_conf = DbConfig {
+        database_url: db_url,
+        max_connections: 5,
+    };
+
+    let db_pool = connect_db(&db_conf).await;
+    assert!(db_pool.is_ok());
+    let db_pool = db_pool.unwrap();
+
+    let sql = r#"TRUNCATE TABLE change_events CASCADE;"#;
+    let result = sqlx::query(sql).execute(&db_pool).await;
+
+    assert!(result.is_ok());
+
+    Ok(db_pool)
 }
