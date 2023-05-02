@@ -4,20 +4,22 @@
 - [ ] `client_database`
 - [x] `client_detect_offline`
 - [x] `data`
-- [x] `server_database`
+- [ ] `server_database`
 - [ ] ~~`client_detect_live`~~
 - [x] `config`
-- [ ] `errors`
+- [ ] ~~`errors`~~
 - [x] `logger`
 - [x] `protocol`
 - [x] `testing_utils`
 
 ### `client_database`
+- [ ] Handle incoming bytes (i.e. write to/read from file + database update)
 - [x] Optimize change events
 - [x] Add blank files after each program run
 - [ ] Add functionality for file writes and creates when receiving from the server
 
 ### `server_database`
+- [ ] Handle incoming bytes (i.e. write to/read from file + database insert if necessary)
 - [x] Create tables
 - [ ] ~~Create enums~~
 - [x] Create rust objects
@@ -29,7 +31,7 @@
 - [ ] Detect live changes
 - [ ] Use `client_database` to save those changes
 
-### `errors`
+### `errors` (to be implemented later)
 - [ ] Create transmission error types
 - [ ] Client side error types
 - [ ] Server side error types
