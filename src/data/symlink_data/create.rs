@@ -11,6 +11,14 @@ impl SymlinkCreate {
     pub fn new(path: String, links_to: String) -> Self {
         Self { path, links_to }
     }
+
+    pub fn path(&self) -> &str {
+        &self.path
+    }
+
+    pub fn links_to(&self) -> &str {
+        &self.links_to
+    }
 }
 
 impl Data for SymlinkCreate {}

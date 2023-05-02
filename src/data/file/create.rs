@@ -11,6 +11,14 @@ impl FileCreate {
     pub fn new(size: usize, path: String) -> Self {
         Self { size, path }
     }
+
+    pub fn size(&self) -> usize {
+        self.size
+    }
+
+    pub fn path(&self) -> &str {
+        &self.path
+    }
 }
 
 impl Data for FileCreate {}

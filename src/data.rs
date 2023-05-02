@@ -53,11 +53,34 @@ where
 {
 }
 
+pub trait InnerEventTrait {
+    fn inner_event(&self) -> InnerEvent;
+}
+
+#[derive(PartialEq, Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub enum InnerEvent {
+    Create,
+    Modify,
+    Move,
+    Delete,
+    UndoDelete,
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
 pub enum ChangeEvent {
     File(FileEvent),
     Directory(DirectoryEvent),
     Symlink(SymlinkEvent),
+}
+
+impl InnerEventTrait for ChangeEvent {
+    fn inner_event(&self) -> InnerEvent {
+        match self {
+            ChangeEvent::File(file) => file.inner_event(),
+            ChangeEvent::Directory(dir) => dir.inner_event(),
+            ChangeEvent::Symlink(symlink) => symlink.inner_event(),
+        }
+    }
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
@@ -69,6 +92,18 @@ pub enum FileEvent {
     UndoDelete(FileUndoDelete),
 }
 
+impl InnerEventTrait for FileEvent {
+    fn inner_event(&self) -> InnerEvent {
+        match self {
+            FileEvent::Create(_) => InnerEvent::Create,
+            FileEvent::Modify(_) => InnerEvent::Modify,
+            FileEvent::Move(_) => InnerEvent::Move,
+            FileEvent::Delete(_) => InnerEvent::Delete,
+            FileEvent::UndoDelete(_) => InnerEvent::UndoDelete,
+        }
+    }
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
 pub enum DirectoryEvent {
     Create(DirectoryCreate),
@@ -77,10 +112,30 @@ pub enum DirectoryEvent {
     UndoDelete(DirectoryUndoDelete),
 }
 
+impl InnerEventTrait for DirectoryEvent {
+    fn inner_event(&self) -> InnerEvent {
+        match self {
+            DirectoryEvent::Create(_) => InnerEvent::Create,
+            DirectoryEvent::Move(_) => InnerEvent::Move,
+            DirectoryEvent::Delete(_) => InnerEvent::Delete,
+            DirectoryEvent::UndoDelete(_) => InnerEvent::UndoDelete,
+        }
+    }
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
 pub enum SymlinkEvent {
     Create(SymlinkCreate),
     Delete(SymlinkDelete),
+}
+
+impl InnerEventTrait for SymlinkEvent {
+    fn inner_event(&self) -> InnerEvent {
+        match self {
+            SymlinkEvent::Create(_) => InnerEvent::Create,
+            SymlinkEvent::Delete(_) => InnerEvent::Delete,
+        }
+    }
 }
 
 #[cfg(test)]

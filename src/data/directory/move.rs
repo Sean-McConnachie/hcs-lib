@@ -11,6 +11,14 @@ impl DirectoryMove {
     pub fn new(from_path: String, to_path: String) -> Self {
         Self { from_path, to_path }
     }
+
+    pub fn from_path(&self) -> &str {
+        &self.from_path
+    }
+
+    pub fn to_path(&self) -> &str {
+        &self.to_path
+    }
 }
 
 impl Data for DirectoryMove {}

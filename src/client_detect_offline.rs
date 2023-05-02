@@ -154,6 +154,11 @@ fn detect_offline_changes(file_handler_config: &client_database::FileHandlerConf
     let mut change_counter =
         client_database::ChangeCounter::init(&file_handler_config.program_data_directory);
 
+    client_database::make_blank_file(
+        &file_handler_config.program_data_directory,
+        change_counter.increment(),
+    );
+
     walk_symlink_dir::walk_symlink(
         &file_handler_config.symlink_directory,
         &file_handler_config,

@@ -7,6 +7,8 @@ use std::{
 
 use log::error;
 
+use crate::client_database;
+
 use super::Data;
 
 pub fn possible_delete(
@@ -104,7 +106,7 @@ pub fn handle_delete(path: &path::PathBuf, data: &Data) {
     if path.is_symlink() {
         return;
     }
-    let x = client_database::FilePaths::
+    let x = client_database::FilePaths::from_relative_path(relative_path, file_type, file_location, points_to, config)
     let rel_path = relative_path(&data.0.symlink_directory, path).unwrap();
     let is_dir = data.0.storage_directory.join(&rel_path).is_dir();
     match event_delete(&rel_path, is_dir, data, true) {

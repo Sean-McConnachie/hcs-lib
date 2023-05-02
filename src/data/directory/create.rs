@@ -10,6 +10,10 @@ impl DirectoryCreate {
     pub fn new(path: String) -> Self {
         Self { path }
     }
+
+    pub fn path(&self) -> &str {
+        &self.path
+    }
 }
 
 impl Data for DirectoryCreate {}

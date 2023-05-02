@@ -3,12 +3,15 @@ mod change_counter;
 pub mod change_events;
 mod custom_metadata;
 mod file_types;
+mod local_changes;
+mod optimize_changes;
 mod server_version;
 
 pub use blank_file::make_blank_file;
 pub use change_counter::ChangeCounter;
 pub use custom_metadata::CustomMetadata;
 pub use file_types::*;
+pub use optimize_changes::optimize_changes;
 pub use server_version::ServerVersion;
 
 use crate::config::parse_path_buf;
