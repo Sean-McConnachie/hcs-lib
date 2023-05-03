@@ -3,7 +3,7 @@ use std::{collections::LinkedList, fs};
 
 pub fn read_changes(
     file_handler_config: &client_database::FileHandlerConfig,
-) -> LinkedList<data::ChangeEvent> {
+) -> LinkedList<(i32, data::ChangeEvent)> {
     let change_dir = file_handler_config.program_data_directory.join("changes");
 
     let mut all_changes = fs::read_dir(&change_dir)
@@ -15,8 +15,14 @@ pub fn read_changes(
     let mut changes = LinkedList::new();
     for change in all_changes {
         if change.path().metadata().unwrap().len() != 0 {
-            changes.push_back(client_database::local_changes::parse_change(
-                &fs::read_to_string(&change.path()).unwrap(),
+            changes.push_back((
+                change.file_name().to_str().unwrap()
+                    [..change.file_name().to_str().unwrap().len() - 4]
+                    .parse::<i32>()
+                    .unwrap(),
+                client_database::local_changes::parse_change(
+                    &fs::read_to_string(&change.path()).unwrap(),
+                ),
             ));
         }
     }
@@ -167,8 +173,8 @@ mod test {
         let (_, mut deleted_chains) = data::get_chains(changes);
 
         assert_eq!(deleted_chains.front().unwrap().len(), 3);
-        data::make_optimizations(deleted_chains.front_mut().unwrap());
-        assert_eq!(deleted_chains.front().unwrap().len(), 0);
+        let optimized = data::make_optimizations(deleted_chains.front_mut().unwrap());
+        assert_eq!(optimized.len(), 0);
     }
 
     #[test]
@@ -187,14 +193,15 @@ mod test {
         let (mut chains, _) = data::get_chains(changes);
 
         assert_eq!(chains.get("1-1.txt").unwrap().len(), 3);
-        data::make_optimizations(chains.get_mut("1-1.txt").unwrap());
-        assert_eq!(chains.get("1-1.txt").unwrap().len(), 1);
+        let optimized = data::make_optimizations(chains.get_mut("1-1.txt").unwrap());
+        assert_eq!(optimized.len(), 1);
         assert_eq!(
             chains
                 .get("1-1.txt")
                 .unwrap()
                 .front()
                 .unwrap()
+                .1
                 .inner_event(),
             data::InnerEvent::Create
         );
@@ -216,14 +223,15 @@ mod test {
         let (mut chains, _) = data::get_chains(changes);
 
         assert_eq!(chains.get("1-1.txt").unwrap().len(), 3);
-        data::make_optimizations(chains.get_mut("1-1.txt").unwrap());
-        assert_eq!(chains.get("1-1.txt").unwrap().len(), 1);
+        let optimized = data::make_optimizations(chains.get_mut("1-1.txt").unwrap());
+        assert_eq!(optimized.len(), 1);
         assert_eq!(
             chains
                 .get("1-1.txt")
                 .unwrap()
                 .front()
                 .unwrap()
+                .1
                 .inner_event(),
             data::InnerEvent::Create
         );
@@ -245,8 +253,8 @@ mod test {
         let (_, mut deleted_chains) = data::get_chains(changes);
 
         assert_eq!(deleted_chains.front().unwrap().len(), 3);
-        data::make_optimizations(deleted_chains.front_mut().unwrap());
-        assert_eq!(deleted_chains.front().unwrap().len(), 2);
+        let optimized = data::make_optimizations(deleted_chains.front_mut().unwrap());
+        assert_eq!(optimized.len(), 2);
     }
 
     #[test]
@@ -270,18 +278,16 @@ mod test {
         let (mut chains, _) = data::get_chains(changes);
 
         assert_eq!(chains.get("e").unwrap().len(), 3);
-        data::make_optimizations(chains.get_mut("e").unwrap());
-        assert_eq!(chains.get("e").unwrap().len(), 1);
+        let optimized = data::make_optimizations(chains.get_mut("e").unwrap());
+        assert_eq!(optimized.len(), 1);
         assert_eq!(
-            chains.get("e").unwrap().front().unwrap().inner_event(),
+            chains.get("e").unwrap().front().unwrap().1.inner_event(),
             data::InnerEvent::Create
         );
 
-        dbg!(&chains.get("b").unwrap());
-
         assert_eq!(chains.get("b").unwrap().len(), 5);
-        data::make_optimizations(chains.get_mut("b").unwrap());
-        assert_eq!(chains.get("b").unwrap().len(), 1);
+        let optimized = data::make_optimizations(chains.get_mut("b").unwrap());
+        assert_eq!(optimized.len(), 1);
     }
 }
 

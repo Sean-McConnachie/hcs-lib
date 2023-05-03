@@ -29,7 +29,7 @@ pub use directory::*;
 pub use error::{Error, ErrorType};
 pub use file::*;
 pub use greeting::Greeting;
-pub use optimize_changes::{get_chains, make_optimizations, optimize_changes};
+pub use optimize_changes::{get_chains, make_optimizations, merge_changes, optimize_changes};
 pub use server_version::ServerVersion;
 pub use symlink_data::*;
 pub use sync_client_to_server::SyncClientToServer;
@@ -38,16 +38,19 @@ pub use sync_server_to_client::SyncServerToClient;
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
 pub enum Transmission<E, D> {
     Greeting(Greeting),
+    Proceed,
     Error(Error<E>),
     SyncClientToServer(SyncClientToServer),
     SyncServerToClient(SyncServerToClient),
     ServerVersion(ServerVersion),
     EndConnection,
+    TransactionComplete,
     SkipCurrent,
     ChangeEvent(ChangeEvent),
     Other(D),
 }
 
+// TODO: D: Data + ExtendedHCSProcol -> implements receive_payload and send_payload.
 impl<E, D> Data for Transmission<E, D>
 where
     E: Data,

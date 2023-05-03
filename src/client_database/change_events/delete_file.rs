@@ -32,7 +32,7 @@ pub fn delete_file(
     }
     {
         // Add file delete change
-        let delete_change = format!("file_delete\n{}", file.relative_path().to_str().unwrap());
+        let delete_change = format!("delete_file\n{}", file.relative_path().to_str().unwrap());
         fs::write(change_counter.next_path(), delete_change).unwrap();
     }
 }

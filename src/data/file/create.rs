@@ -5,21 +5,25 @@ use crate::data::{ChangeEvent, Data, FileEvent};
 /// Entry point for both the client and server. Used to determine whether the client and server are out of sync.
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
 pub struct FileCreate {
-    size: usize,
+    size: u64,
     path: String,
 }
 
 impl FileCreate {
-    pub fn new(size: usize, path: String) -> Self {
+    pub fn new(size: u64, path: String) -> Self {
         Self { size, path }
     }
 
-    pub fn size(&self) -> usize {
+    pub fn size(&self) -> u64 {
         self.size
     }
 
     pub fn path(&self) -> &str {
         &self.path
+    }
+
+    pub fn set_size(&mut self, size: u64) {
+        self.size = size;
     }
 }
 

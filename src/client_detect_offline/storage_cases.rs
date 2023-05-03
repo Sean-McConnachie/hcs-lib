@@ -61,7 +61,7 @@ pub fn custom_metadata_exists(
     if is_dir && !(file.symlink_dir_path().exists() && file.storage_dir_path().exists()) {
         client_database::change_events::delete_dir(file, change_counter);
     } else if !is_dir
-        && !(file.symlink_dir_path().exists() && fs::read_link(&file.symlink_dir_path()).is_ok())
+        && !(file.storage_dir_path().exists() && fs::read_link(&file.symlink_dir_path()).is_ok())
     {
         client_database::change_events::delete_file(file, change_counter)
     }

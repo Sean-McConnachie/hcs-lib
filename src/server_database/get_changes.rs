@@ -1,5 +1,3 @@
-use std::collections::LinkedList;
-
 use sqlx::Row;
 
 use crate::data;
@@ -73,53 +71,11 @@ fn row_to_change_event(
     }
 }
 
-/// Runtime of O(n*k) where k = the number of tables and n = the number of changes
-/// This is based off of the merge-part of the merge-sort algorithm.
-fn merge_changes(
-    changes_in_table: Vec<Vec<(i32, data::ChangeEvent)>>,
-) -> LinkedList<data::ChangeEvent> {
-    let mut iter_counts = [0; super::TABLES.len()];
-
-    let mut changes = LinkedList::new();
-
-    loop {
-        let mut min_change_event_id = i32::MAX;
-        let mut min_change_event_id_index = 0;
-
-        for (i, iter_count) in iter_counts.iter().enumerate() {
-            if *iter_count < changes_in_table[i].len() {
-                let change_event_id = changes_in_table[i][*iter_count].0;
-
-                if change_event_id < min_change_event_id {
-                    min_change_event_id = change_event_id;
-                    min_change_event_id_index = i;
-                }
-            } else {
-                break;
-            }
-        }
-
-        if min_change_event_id == i32::MAX {
-            break;
-        }
-
-        changes.push_back(
-            changes_in_table[min_change_event_id_index][iter_counts[min_change_event_id_index]]
-                .1
-                .clone(),
-        );
-
-        iter_counts[min_change_event_id_index] += 1;
-    }
-
-    changes
-}
-
 pub async fn get_changes(
     change_id_from: i32,
     change_id_to: i32,
     db_pool: &sqlx::PgPool,
-) -> Result<LinkedList<data::ChangeEvent>, sqlx::Error> {
+) -> Result<Vec<(i32, data::ChangeEvent)>, sqlx::Error> {
     let mut changes_in_tables = vec![];
 
     for table in super::TABLES {
@@ -141,7 +97,7 @@ pub async fn get_changes(
         changes_in_tables.push(changes);
     }
 
-    let changes = merge_changes(changes_in_tables);
+    let changes = data::merge_changes(changes_in_tables);
 
     Ok(changes)
 }

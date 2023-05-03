@@ -5,7 +5,7 @@ use log::info;
 /// Local server version
 pub struct ServerVersion {
     server_version_path: path::PathBuf,
-    server_version: i64,
+    server_version: i32,
 }
 
 impl ServerVersion {
@@ -18,7 +18,7 @@ impl ServerVersion {
         } else {
             fs::read_to_string(&server_version_path)
                 .unwrap()
-                .parse::<i64>()
+                .parse::<i32>()
                 .unwrap()
         };
         Self {
@@ -27,13 +27,13 @@ impl ServerVersion {
         }
     }
 
-    pub fn set(&mut self, new_server_version: i64) -> i64 {
+    pub fn set(&mut self, new_server_version: i32) -> i32 {
         fs::write(&self.server_version_path, new_server_version.to_string()).unwrap();
         self.server_version = new_server_version;
         self.server_version
     }
 
-    pub fn server_version(&self) -> i64 {
+    pub fn server_version(&self) -> i32 {
         self.server_version
     }
 }

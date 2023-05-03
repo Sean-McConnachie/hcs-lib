@@ -1,24 +1,60 @@
 mod get_changes;
 mod initialize;
 mod insert_change;
+mod server_version;
 mod table_details;
 
 pub use get_changes::get_changes;
 pub use initialize::initialize_db;
 pub use insert_change::insert_change;
+pub use server_version::get_server_version;
 pub use table_details::{TableDetails, TableDetailsTrait, TABLES};
 
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::ConnectOptions;
+use std::path;
 use std::str::FromStr;
 
+#[derive(serde::Deserialize, Debug, Clone, Default, PartialEq)]
+pub struct ServerFileHandlerConfig {
+    storage_directory: path::PathBuf,
+}
+
+impl ServerFileHandlerConfig {
+    pub fn new(storage_directory: path::PathBuf) -> Self {
+        Self { storage_directory }
+    }
+
+    pub fn storage_directory(&self) -> &path::Path {
+        self.storage_directory.as_path()
+    }
+}
+
+#[derive(serde::Deserialize, Debug, Clone, Default, PartialEq)]
 pub struct DbConfig {
-    pub database_url: String,
-    pub max_connections: u32,
+    database_url: String,
+    max_connections: u32,
+}
+
+impl DbConfig {
+    pub fn new(database_url: String, max_connections: u32) -> Self {
+        Self {
+            database_url,
+            max_connections,
+        }
+    }
+
+    pub fn database_url(&self) -> &str {
+        self.database_url.as_str()
+    }
+
+    pub fn max_connections(&self) -> u32 {
+        self.max_connections
+    }
 }
 
 pub async fn connect_db(db_conf: &DbConfig) -> Result<sqlx::PgPool, sqlx::Error> {
-    let options = PgConnectOptions::from_str(db_conf.database_url.as_str())?
+    let options = PgConnectOptions::from_str(db_conf.database_url())?
         .disable_statement_logging()
         .clone();
     let pool = PgPoolOptions::new()

@@ -52,7 +52,7 @@ pub fn move_file(
     {
         // Add file move change
         let move_change = format!(
-            "file_move\n{}\n{}",
+            "move_file\n{}\n{}",
             rel_from_path.to_str().unwrap(),
             rel_to_path.to_str().unwrap()
         );

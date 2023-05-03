@@ -10,6 +10,21 @@ impl Greeting {
     pub fn new(version: String) -> Self {
         Self { version }
     }
+
+    pub fn version(&self) -> &str {
+        &self.version
+    }
 }
 
 impl Data for Greeting {}
+
+impl<E, D> TryInto<Greeting> for super::Transmission<E, D> {
+    type Error = ();
+
+    fn try_into(self) -> Result<Greeting, <super::Transmission<E, D> as TryInto<Greeting>>::Error> {
+        match self {
+            super::Transmission::Greeting(greeting) => Ok(greeting),
+            _ => Err(()),
+        }
+    }
+}

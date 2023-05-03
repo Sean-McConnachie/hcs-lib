@@ -47,10 +47,7 @@ pub fn rm_dirs_ce_dirs_get_default_helpers() -> (
 pub async fn clear_tables_and_get_pool() -> Result<sqlx::postgres::PgPool, sqlx::Error> {
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL environment variable not set");
 
-    let db_conf = DbConfig {
-        database_url: db_url,
-        max_connections: 5,
-    };
+    let db_conf = DbConfig::new(db_url, 5);
 
     let db_pool = connect_db(&db_conf).await;
     assert!(db_pool.is_ok());

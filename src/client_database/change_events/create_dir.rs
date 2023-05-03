@@ -23,7 +23,8 @@ pub fn create_dir(
     }
     {
         // Make `create dir` change event
-        let create_change = format!("create_dir\n{}", file.storage_dir_path().to_str().unwrap());
+        dbg!(file.storage_dir_path());
+        let create_change = format!("create_dir\n{}", file.relative_path().to_str().unwrap());
         fs::write(change_counter.next_path(), create_change).unwrap();
     }
 }

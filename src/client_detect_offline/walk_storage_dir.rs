@@ -1,7 +1,5 @@
 use std::{fs, path};
 
-use log::debug;
-
 use crate::client_database;
 
 use super::storage_cases;
@@ -11,7 +9,7 @@ pub fn walk_storage(
     file_handler_config: &client_database::FileHandlerConfig,
     change_counter: &mut client_database::ChangeCounter,
 ) {
-    debug!("Walking storage directory: {:?}", dir);
+    log::info!("Walking storage directory: {:?}", dir);
 
     let paths = fs::read_dir(dir).unwrap();
 
@@ -33,7 +31,13 @@ pub fn walk_storage(
             client_database::Type::Directory => {
                 // Case 9
                 storage_cases::directory_exists(&file_paths, change_counter);
-                walk_storage(file_paths.path(), file_handler_config, change_counter);
+                if file_paths.symlink_dir_path().exists() {
+                    walk_storage(
+                        file_paths.symlink_dir_path(),
+                        file_handler_config,
+                        change_counter,
+                    );
+                }
             }
             client_database::Type::Symlink => {
                 // Case 10

@@ -229,7 +229,14 @@ impl FilePaths {
         fp: path::PathBuf,
         config: &super::FileHandlerConfig,
     ) -> Result<Self, std::io::Error> {
-        let (file_location, relative_path) = if StorageDir::in_storage_dir(&fp, config) {
+        let (file_location, relative_path) = if StorageDir::in_storage_dir(&fp, config)
+            && CustomMetadataType::is_custom_metadata(&fp)
+        {
+            (
+                FileLocation::StorageDir,
+                CustomMetadataType::to_relative(&fp, config),
+            )
+        } else if StorageDir::in_storage_dir(&fp, config) {
             (
                 FileLocation::StorageDir,
                 StorageDir::to_relative(&fp, config),

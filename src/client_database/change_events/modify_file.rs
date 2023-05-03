@@ -10,7 +10,7 @@ pub fn modify_file(
 ) {
     debug!("`modify_file`: `{}`", file.relative_path().display());
     let mut custom_metadata = client_database::CustomMetadata::read_from_file(file).unwrap();
-    let modified_change = format!("file_modified\n{}", file.relative_path().to_str().unwrap(),);
+    let modified_change = format!("modify_file\n{}", file.relative_path().to_str().unwrap(),);
     fs::write(change_counter.next_path(), modified_change).unwrap();
 
     let real_last_modified =

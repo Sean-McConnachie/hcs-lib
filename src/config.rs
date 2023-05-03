@@ -42,3 +42,13 @@ where
     let s = String::deserialize(deserializer)?;
     Ok(std::path::PathBuf::from(s))
 }
+
+#[allow(unused)]
+pub fn parse_socket_addr<'de, D>(deserializer: D) -> Result<std::net::SocketAddr, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    Ok(s.parse()
+        .map_err(|e| serde::de::Error::custom(format!("Invalid socket address: {}", e)))?)
+}

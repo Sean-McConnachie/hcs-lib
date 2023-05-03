@@ -38,20 +38,20 @@ fn get_chain_path(change: &data::ChangeEvent) -> (String, Option<String>, bool) 
 }
 
 pub fn get_chains(
-    mut changes: LinkedList<ChangeEvent>,
+    mut changes: LinkedList<(i32, ChangeEvent)>,
 ) -> (
-    HashMap<String, LinkedList<ChangeEvent>>,
-    LinkedList<LinkedList<ChangeEvent>>,
+    HashMap<String, LinkedList<(i32, ChangeEvent)>>,
+    LinkedList<LinkedList<(i32, ChangeEvent)>>,
 ) {
     let mut deleted_chains = LinkedList::new();
-    let mut chains: HashMap<String, LinkedList<ChangeEvent>> = HashMap::new();
+    let mut chains: HashMap<String, LinkedList<(i32, ChangeEvent)>> = HashMap::new();
 
     loop {
         let change = match changes.pop_front() {
             Some(change) => change,
             None => break,
         };
-        let (existing_path, new_path, is_delete) = get_chain_path(&change);
+        let (existing_path, new_path, is_delete) = get_chain_path(&change.1);
         if let Some(chain) = chains.get_mut(&existing_path) {
             chain.push_back(change);
         } else {
@@ -71,26 +71,30 @@ pub fn get_chains(
     (chains, deleted_chains)
 }
 
-fn get_most_recent_move_change(chain: &mut LinkedList<ChangeEvent>) -> Option<ChangeEvent> {
+fn get_most_recent_move_change(
+    chain: &mut LinkedList<(i32, ChangeEvent)>,
+) -> Option<(i32, ChangeEvent)> {
     for change in chain.iter().rev() {
-        if change.inner_event() == data::InnerEvent::Move {
+        if change.1.inner_event() == data::InnerEvent::Move {
             return Some(change.clone());
         }
     }
     None
 }
 
-fn get_first_modify_change(chain: &mut LinkedList<ChangeEvent>) -> Option<ChangeEvent> {
+fn get_first_modify_change(
+    chain: &mut LinkedList<(i32, ChangeEvent)>,
+) -> Option<(i32, ChangeEvent)> {
     for change in chain.iter() {
-        if change.inner_event() == data::InnerEvent::Modify {
+        if change.1.inner_event() == data::InnerEvent::Modify {
             return Some(change.clone());
         }
     }
     None
 }
 
-fn move_to_from_of_change(change: &ChangeEvent) -> (String, String) {
-    match change {
+fn move_to_from_of_change(change: &(i32, ChangeEvent)) -> (String, String) {
+    match &change.1 {
         data::ChangeEvent::File(data::FileEvent::Move(file_move)) => (
             file_move.from_path().to_string(),
             file_move.to_path().to_string(),
@@ -103,8 +107,8 @@ fn move_to_from_of_change(change: &ChangeEvent) -> (String, String) {
     }
 }
 
-fn path_of_modify_change(change: &ChangeEvent) -> String {
-    match change {
+fn path_of_modify_change(change: &(i32, ChangeEvent)) -> String {
+    match &change.1 {
         data::ChangeEvent::File(data::FileEvent::Modify(file_modify)) => {
             file_modify.path().to_string()
         }
@@ -128,22 +132,21 @@ fn path_of_modify_change(change: &ChangeEvent) -> String {
 /// [6] M_1 -> M_k = M_1_from -> M_k_to
 /// [7] M_1 -> D = D @ M_1_from
 /// [8] M -> Y = M -> Y
-pub fn make_optimizations(chain: &mut LinkedList<ChangeEvent>) {
+pub fn make_optimizations(chain: &mut LinkedList<(i32, ChangeEvent)>) -> Vec<(i32, ChangeEvent)> {
     if chain.len() == 1 {
-        return;
+        return vec![chain.front().unwrap().clone()];
     }
 
-    let is_dir = match chain.front().unwrap() {
+    let is_dir = match chain.front().unwrap().1 {
         data::ChangeEvent::File(_) => false,
         data::ChangeEvent::Directory(_) => true,
         data::ChangeEvent::Symlink(_) => unimplemented!("symlinks not implemented"),
     };
 
-    if chain.front().unwrap().inner_event() == data::InnerEvent::Create {
-        if chain.back().unwrap().inner_event() == data::InnerEvent::Delete {
+    if chain.front().unwrap().1.inner_event() == data::InnerEvent::Create {
+        if chain.back().unwrap().1.inner_event() == data::InnerEvent::Delete {
             // [2] C -> D = null
-            chain.clear();
-            return;
+            return vec![];
         }
 
         if let Some(move_change) = get_most_recent_move_change(chain) {
@@ -157,12 +160,12 @@ pub fn make_optimizations(chain: &mut LinkedList<ChangeEvent>) {
                     data::DirectoryCreate::new(move_to),
                 )),
             };
-            chain.clear();
-            chain.push_back(optimized_create);
-            return;
+            return vec![(move_change.0, optimized_create)];
         }
-    } else if chain.back().unwrap().inner_event() == data::InnerEvent::Delete {
-        let from_path = match chain.front().unwrap() {
+    } else if chain.back().unwrap().1.inner_event() == data::InnerEvent::Delete {
+        let delete_change_id = chain.back().unwrap().0;
+        let start_change_id = chain.front().unwrap().0;
+        let from_path = match &chain.front().unwrap().1 {
             data::ChangeEvent::File(file_event) => match file_event {
                 data::FileEvent::Modify(file_modify) => file_modify.path(),
                 data::FileEvent::Move(file_move) => file_move.from_path(),
@@ -175,7 +178,7 @@ pub fn make_optimizations(chain: &mut LinkedList<ChangeEvent>) {
             data::ChangeEvent::Symlink(_) => unreachable!("symlink not implemented"),
         };
 
-        let delete_path = match chain.back().unwrap() {
+        let delete_path = match &chain.back().unwrap().1 {
             data::ChangeEvent::File(data::FileEvent::Delete(file_delete)) => file_delete.path(),
             data::ChangeEvent::Directory(data::DirectoryEvent::Delete(dir_delete)) => {
                 dir_delete.path()
@@ -186,9 +189,7 @@ pub fn make_optimizations(chain: &mut LinkedList<ChangeEvent>) {
 
         if from_path == delete_path {
             let delete = chain.pop_back().unwrap();
-            chain.clear();
-            chain.push_back(delete);
-            return;
+            return vec![delete];
         } else {
             let move_change = match is_dir {
                 false => data::ChangeEvent::File(data::FileEvent::Move(data::FileMove::new(
@@ -208,10 +209,10 @@ pub fn make_optimizations(chain: &mut LinkedList<ChangeEvent>) {
                 )),
             };
 
-            chain.clear();
-            chain.push_back(move_change);
-            chain.push_back(delete_change);
-            return;
+            return vec![
+                (start_change_id, move_change),
+                (delete_change_id, delete_change),
+            ];
         }
     } else {
         // this chain could contain a modify and/or move which are both relevant to the optimization
@@ -219,7 +220,7 @@ pub fn make_optimizations(chain: &mut LinkedList<ChangeEvent>) {
         let modify_change = get_first_modify_change(chain);
 
         if move_change.is_none() && modify_change.is_none() {
-            return;
+            return vec![];
         } else if !move_change.is_none() && !modify_change.is_none() {
             let modify_change = modify_change.unwrap();
             let move_change = move_change.unwrap();
@@ -243,18 +244,17 @@ pub fn make_optimizations(chain: &mut LinkedList<ChangeEvent>) {
                 true => unreachable!(),
             };
 
-            chain.clear();
-            chain.push_back(optimized_move);
-            chain.push_back(optimized_modify);
-            return;
+            return vec![
+                (move_change.0, optimized_move),
+                (modify_change.0, optimized_modify),
+            ];
         } else if move_change.is_none() && !modify_change.is_none() {
             let modify_change = modify_change.unwrap();
-            chain.clear();
-            chain.push_back(modify_change);
+            return vec![modify_change];
         } else if !move_change.is_none() && modify_change.is_none() {
             let move_change = move_change.unwrap();
 
-            let move_from = match chain.front().unwrap() {
+            let move_from = match &chain.front().unwrap().1 {
                 data::ChangeEvent::File(file_event) => match file_event {
                     data::FileEvent::Move(file_move) => file_move.from_path(),
                     _ => unreachable!("change is not a modify or move"),
@@ -276,27 +276,75 @@ pub fn make_optimizations(chain: &mut LinkedList<ChangeEvent>) {
                 true => unreachable!(),
             };
 
-            chain.clear();
-            chain.push_back(optimized_move);
-            return;
+            return vec![(move_change.0, optimized_move)];
         }
     }
+    let mut return_vec = vec![];
+    for change in chain {
+        return_vec.push(change.clone());
+    }
+    return return_vec;
 }
 
-pub fn optimize_changes(changes: LinkedList<ChangeEvent>) -> Vec<LinkedList<ChangeEvent>> {
+/// Runtime of O(n*k) where k = the number of tables and n = the number of changes
+/// This is based off of the merge-part of the merge-sort algorithm.
+pub fn merge_changes(
+    changes_in_table: Vec<Vec<(i32, data::ChangeEvent)>>,
+) -> Vec<(i32, data::ChangeEvent)> {
+    let mut iter_counts = vec![0; changes_in_table.len()];
+
+    let mut changes = vec![];
+
+    loop {
+        let mut min_change_event_id = i32::MAX;
+        let mut min_change_event_id_index = 0;
+
+        for (i, iter_count) in iter_counts.iter().enumerate() {
+            if *iter_count < changes_in_table[i].len() {
+                let change_event_id = changes_in_table[i][*iter_count].0;
+
+                if change_event_id < min_change_event_id {
+                    min_change_event_id = change_event_id;
+                    min_change_event_id_index = i;
+                }
+            } else {
+                break;
+            }
+        }
+
+        if min_change_event_id == i32::MAX {
+            break;
+        }
+
+        changes.push(
+            changes_in_table[min_change_event_id_index][iter_counts[min_change_event_id_index]]
+                .clone(),
+        );
+
+        iter_counts[min_change_event_id_index] += 1;
+    }
+
+    changes
+}
+
+pub fn optimize_changes(changes: LinkedList<(i32, ChangeEvent)>) -> Vec<(i32, ChangeEvent)> {
     let (chains, deleted_chains) = get_chains(changes);
 
     let mut optimized_changes = vec![];
 
     for (_last_path, mut chain) in chains.into_iter() {
-        make_optimizations(&mut chain);
-        optimized_changes.push(chain);
+        let optimized = make_optimizations(&mut chain);
+        optimized_changes.push(optimized);
     }
 
     for mut chain in deleted_chains.into_iter() {
-        make_optimizations(&mut chain);
-        optimized_changes.push(chain)
+        let optimized = make_optimizations(&mut chain);
+        optimized_changes.push(optimized)
     }
 
-    optimized_changes
+    let mut merged = merge_changes(optimized_changes);
+
+    merged.sort_by_key(|k| k.0);
+
+    merged
 }
