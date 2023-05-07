@@ -82,8 +82,11 @@ pub fn real_file_exists(
             // check if the storage_path exists
             while unique_storage_path.exists() {
                 let file_name = storage_path.file_stem().unwrap().to_str().unwrap();
-                let file_ext = storage_path.extension().unwrap().to_str().unwrap();
-                let new_file_name = format!("{} ({}).{}", file_name, k, file_ext);
+                let file_ext = match storage_path.extension() {
+                    Some(ext) => format!(".{}", ext.to_str().unwrap()),
+                    None => String::from(""),
+                };
+                let new_file_name = format!("{} ({}){}", file_name, k, file_ext);
                 k += 1;
 
                 unique_storage_path.set_file_name(new_file_name);

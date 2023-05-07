@@ -1,6 +1,6 @@
 use super::FilePaths;
 
-use std::{fs, path, time};
+use std::{fs, io::Write, path, time};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct CustomMetadata {
@@ -33,7 +33,10 @@ impl CustomMetadata {
     pub fn write_to_file(&self, file_paths: &FilePaths) -> Result<(), std::io::Error> {
         let custom_metadata_path = file_paths.custom_metadata_path();
         let contents = serde_json::to_string(&self)?;
-        fs::write(custom_metadata_path, contents)?;
+
+        let mut file = fs::File::create(custom_metadata_path)?;
+        file.set_len(0)?;
+        file.write(contents.as_bytes())?;
         Ok(())
     }
 

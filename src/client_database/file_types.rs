@@ -249,7 +249,10 @@ impl FilePaths {
         } else {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
-                "File is not in storage or symlink directory",
+                format!(
+                    "File is not in storage or symlink directory: {}",
+                    fp.display()
+                ),
             ));
         };
 
@@ -264,7 +267,10 @@ impl FilePaths {
         } else {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
-                "File is not a file, directory, custom metadata, or symlink",
+                format!(
+                    "File is not a file, directory, custom metadata, or symlink: `{}`",
+                    fp.display()
+                ),
             ));
         };
 

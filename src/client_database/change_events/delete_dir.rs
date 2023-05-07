@@ -18,13 +18,13 @@ pub fn delete_dir(
     {
         // Delete directory in symlink if exists
         if file.symlink_dir_path().exists() {
-            fs::remove_dir(file.symlink_dir_path()).unwrap();
+            fs::remove_dir_all(file.symlink_dir_path()).unwrap();
         }
     }
     {
         // Delete directory in storage if exists
         if file.storage_dir_path().exists() {
-            fs::remove_dir(file.storage_dir_path()).unwrap();
+            fs::remove_dir_all(file.storage_dir_path()).unwrap();
         }
     }
     {
